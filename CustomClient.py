@@ -1,6 +1,6 @@
 import socket, re
 
-from CustomBot import CustomBot
+from CustomBot import callCustomBot
 
 #HOST, PORT = "209.97.169.233", 14003
 HOST, PORT = "localhost", 14003
@@ -16,4 +16,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         if re.match("^victory_cell", ret) is None:
             break
         else:
-            sock.sendall(bytes(CustomBot(ret), "ASCII"))
+            sock.sendall(bytes(callCustomBot(ret), "ASCII"))
