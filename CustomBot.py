@@ -1,8 +1,5 @@
-import itertools, random
+import itertools, dataclasses
 
-from array import *
-from random import *
-from copy import deepcopy
 from init import Board
 
 def callCustomBot(game_info):
@@ -15,7 +12,7 @@ def callCustomBot(game_info):
 
     you = lines[12]
 
-    board_weights = [
+    board_scores = [
         [90, -60, 10, 10, 10, 10, -60, 90],
         [-60, -80, 5, 5, 5, 5, -80, -60],
         [10, 5, 1, 1, 1, 1, 5, 10],
@@ -29,11 +26,11 @@ def callCustomBot(game_info):
     for i in victory_cell:
         c = cell.getColumnId(i[0])
         r = cell.getRowId(i[1])
-        board_weights[r][c] = 100
+        board_scores[r][c] += 20
 
-    return CustomBot(victory_cell, cell, you, board_weights)
+    return CustomBot(victory_cell, cell, you, board_scores)
 
-def CustomBot(victory_cell, cell, you, board_weights):
+def CustomBot(victory_cell, cell, you, board_scores):
     color = 'B' if you == "BLACK" else 'W'
 
     possible_positions = []
@@ -42,11 +39,82 @@ def CustomBot(victory_cell, cell, you, board_weights):
             possible_positions.append(c + r)
 
     if len(possible_positions) > 0:
+       return minimax(cell, color, board_scores, possible_positions)
 
-        #chinh o day, bo random
-
-
-        return random.choice(possible_positions)
     else:
         return "NULL"
 
+def minimax(cell, you, board_scores, possible_positions):
+    return minimax_max(cell, you, board_scores, possible_positions, 1)
+
+def minimax_max(cell, you, board_scores, possible_positions, depth):
+    move_states = {move: play_move(cell, you, move[0], move[1]) for move in possible_positions}
+    best_move = None
+    best_value = None
+
+    if len(possible_positions) > 0:
+        if depth == 1:
+            for move, state in move_states.items():
+                if best_move == None or minimax_min(state, you, depth + 1) > best_value:
+                    best_move = move
+                    best_value = minimax_min(state, you, depth + 1)
+
+            return best_move
+
+        else:
+            for move, state in move_states.items():
+                if best_move == None or minimax_min(state, you, depth + 1) > best_value:
+                    best_value = minimax_min(state, you, depth + 1)
+            return best_value
+
+    return compute_heuristic_score(cell, you, board_scores)
+
+def minimax_min(cell, you, board_scores, possible_positions, depth):
+    opponent = 'W' if you == 'B' else 'B'
+    move_states = {move: play_move(cell, opponent, move[0], move[1]) for move in possible_positions}
+    best_move = None
+    best_value = None
+
+    if len(possible_positions) > 0:
+        if depth <= 3:
+            for move, state in move_states.items():
+
+                if best_move == None or minimax_max(state, you, depth + 1) < best_value:
+                    best_move = move
+                    best_value = minimax_max(state, you, depth + 1)
+
+            return best_value
+
+        else:
+            for move, state in move_states.items():
+
+                if best_value == None or compute_heuristic_score(state, you) < best_value:
+                    best_value = compute_heuristic_score(state, you)
+
+            return best_value
+    return compute_heuristic_score(cell, you, board_scores)
+
+def play_move(cell, color, i, j):
+    new_board = []
+    for row in cell:
+        new_board.append(list(row[:]))
+    lines = find_lines(board, i,j, color)
+    new_board[j][i] = color
+    for line in lines:
+        for u,v in line:
+           new_board[v][u] = color
+    final = []
+    for row in new_board:
+        final.append(tuple(row))
+    return tuple(final)
+
+def compute_heuristic_score(cell, you, board_scores):
+    p1_score = 0
+    p2_score = 0
+    for r in range(8):
+        for c in range(8):
+            if cell.data[r, c] == you:
+                p1_score += board_scores[r][c]
+            elif cell.data[r, c] != 'E':
+                p2_score += board_scores[r][c]
+    return p1_score - p2_score
