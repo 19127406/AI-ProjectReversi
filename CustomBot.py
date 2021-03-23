@@ -27,7 +27,7 @@ def callCustomBot(game_info):
     for i in victory_cell:
         c = cell.getColumnId(i[0])
         r = cell.getRowId(i[1])
-        board_scores[r][c] += 20
+        board_scores[r][c] += 30
 
     return CustomBot(victory_cell, cell, you, board_scores)
 
@@ -50,11 +50,24 @@ def minimax(cell, you, board_scores):
 
 def minimax_max(cell, you, board_scores, depth):
     possible_positions = []
-    for (r, c) in itertools.product(list('12345678'), list('abcdefgh')):
-        if cell.isPlaceable(c + r, you):
-            possible_positions.append(c + r)
+    if type(cell) is tuple:
+        new_board = Board()
+        for i in range(8):
+            for j in range(8):
+                new_board.data[i][j] = cell[i][j]
 
-    move_states = {move: play_move(cell, you, cell.getRowId(move[1]), cell.getColumnId(move[0])) for move in possible_positions}
+        for (r, c) in itertools.product(list('12345678'), list('abcdefgh')):
+            if new_board.isPlaceable(c + r, you):
+                possible_positions.append(c + r)
+        move_states = {move: play_move(new_board, you, new_board.getColumnId(move[0]), new_board.getRowId(move[1])) for move in
+                       possible_positions}
+    else:
+        for (r, c) in itertools.product(list('12345678'), list('abcdefgh')):
+            if cell.isPlaceable(c + r, you):
+                possible_positions.append(c + r)
+        move_states = {move: play_move(cell, you, cell.getColumnId(move[0]), cell.getRowId(move[1])) for move in
+                       possible_positions}
+
     best_move = None
     best_value = None
 
@@ -63,9 +76,8 @@ def minimax_max(cell, you, board_scores, depth):
             for move, state in move_states.items():
                 if best_move == None or minimax_min(state, you, board_scores, depth + 1) > best_value:
                     best_move = move
-                    #best_value = minimax_min(state, you, board_scores, depth + 1)
+                    best_value = minimax_min(state, you, board_scores, depth + 1)
 
-            #best_move = cell.getRowId(best_move[0])
             return best_move
 
         else:
@@ -79,11 +91,18 @@ def minimax_max(cell, you, board_scores, depth):
 def minimax_min(cell, you, board_scores, depth):
     opponent = 'W' if you == 'B' else 'B'
     possible_positions = []
-    for (r, c) in itertools.product(list('12345678'), list('abcdefgh')):
-        if cell.isPlaceable(c + r, opponent):
-            possible_positions.append(c + r)
 
-    move_states = {move: play_move(cell, opponent, cell.getRowId(move[1]), cell.getColumnId(move[0])) for move in possible_positions}
+    new_board = Board()
+    for i in range(8):
+        for j in range(8):
+            new_board.data[i][j] = cell[i][j]
+
+    for (r, c) in itertools.product(list('12345678'), list('abcdefgh')):
+        if new_board.isPlaceable(c + r, opponent):
+            possible_positions.append(c + r)
+    move_states = {move: play_move(new_board, opponent, new_board.getColumnId(move[0]), new_board.getRowId(move[1])) for move in
+                   possible_positions}
+
     best_move = None
     best_value = None
 
@@ -91,22 +110,22 @@ def minimax_min(cell, you, board_scores, depth):
         if depth <= 3:
             for move, state in move_states.items():
 
-                if best_move == None or minimax_max(state, you, depth + 1) < best_value:
+                if best_move == None or minimax_max(state, you, board_scores, depth + 1) < best_value:
                     best_move = move
-                    best_value = minimax_max(state, you, depth + 1)
+                    best_value = minimax_max(state, you, board_scores, depth + 1)
 
             return best_value
 
         else:
             for move, state in move_states.items():
 
-                if best_value == None or compute_heuristic_score(state, you) < best_value:
-                    best_value = compute_heuristic_score(state, you)
+                if best_value == None or compute_heuristic_score(state, you, board_scores) < best_value:
+                    best_value = compute_heuristic_score(state, you, board_scores)
 
             return best_value
     return compute_heuristic_score(cell, you, board_scores)
 
-def play_move(cell, you, i, j):
+def play_move(cell, you, i, j):          # column i, row j
     new_board = []
     for row in list(cell.data):
         new_board.append(list(row[:]))
@@ -151,8 +170,8 @@ def compute_heuristic_score(cell, you, board_scores):
     p2_score = 0
     for r in range(8):
         for c in range(8):
-            if cell.data[r, c] == you:
+            if cell[r][c] == you:
                 p1_score += board_scores[r][c]
-            elif cell.data[r, c] != 'E':
+            elif cell[r][c] != 'E':
                 p2_score += board_scores[r][c]
     return p1_score - p2_score
