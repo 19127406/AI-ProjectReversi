@@ -2,6 +2,7 @@ import itertools
 
 from init import Board
 
+
 def callCustomBot(game_info):
     lines = game_info.split('\n')
 
@@ -30,6 +31,7 @@ def callCustomBot(game_info):
 
     return CustomBot(cell, you, board_scores)
 
+
 def CustomBot(cell, you, board_scores):
     color = 'B' if you == "BLACK" else 'W'
 
@@ -44,8 +46,10 @@ def CustomBot(cell, you, board_scores):
     else:
         return "NULL"
 
+
 def minimax(cell, you, board_scores):
     return minimax_max(cell, you, board_scores, 1)
+
 
 def minimax_max(cell, you, board_scores, depth):
     possible_positions = []
@@ -87,6 +91,7 @@ def minimax_max(cell, you, board_scores, depth):
 
     return compute_heuristic_score(cell, you, board_scores)
 
+
 def minimax_min(cell, you, board_scores, depth):
     opponent = 'W' if you == 'B' else 'B'
     possible_positions = []
@@ -124,6 +129,7 @@ def minimax_min(cell, you, board_scores, depth):
             return best_value
     return compute_heuristic_score(cell, you, board_scores)
 
+
 def play_move(cell, you, i, j):          # column i, row j
     new_board = []
     for row in list(cell.data):
@@ -138,6 +144,7 @@ def play_move(cell, you, i, j):          # column i, row j
     for row in new_board:
         final.append(tuple(row))
     return tuple(final)
+
 
 def find_lines(board, i, j, you):
     lines = []
@@ -175,4 +182,5 @@ def compute_heuristic_score(cell, you, board_scores):
             elif (type(cell) is tuple and cell[r][c] != 'E') or (type(cell) is Board and cell.data[r][c] != 'E'):
                 p2_score += board_scores[r][c]
     return p1_score - p2_score
+
 
