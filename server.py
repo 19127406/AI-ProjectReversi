@@ -2,6 +2,7 @@ import socketserver, random, re
 
 from init import Game
 from bot import callBot
+from CustomBot import callCustomBot
 
 class GameServerHandler(socketserver.BaseRequestHandler):
     def handle(self):

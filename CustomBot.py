@@ -1,6 +1,5 @@
-import itertools, dataclasses
+import itertools
 
-from copy import deepcopy
 from init import Board
 
 def callCustomBot(game_info):
@@ -29,9 +28,9 @@ def callCustomBot(game_info):
         r = cell.getRowId(i[1])
         board_scores[r][c] += 30
 
-    return CustomBot(victory_cell, cell, you, board_scores)
+    return CustomBot(cell, you, board_scores)
 
-def CustomBot(victory_cell, cell, you, board_scores):
+def CustomBot(cell, you, board_scores):
     color = 'B' if you == "BLACK" else 'W'
 
     possible_positions = []
@@ -170,8 +169,10 @@ def compute_heuristic_score(cell, you, board_scores):
     p2_score = 0
     for r in range(8):
         for c in range(8):
-            if cell[r][c] == you:
+            if (type(cell) is tuple and cell[r][c] == you) or (type(cell) is Board and cell.data[r][c] == you):
                 p1_score += board_scores[r][c]
-            elif cell[r][c] != 'E':
+
+            elif (type(cell) is tuple and cell[r][c] != 'E') or (type(cell) is Board and cell.data[r][c] != 'E'):
                 p2_score += board_scores[r][c]
     return p1_score - p2_score
+
