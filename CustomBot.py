@@ -2,7 +2,6 @@ import itertools
 
 from init import Board
 
-
 def callCustomBot(game_info):
     lines = game_info.split('\n')
 
@@ -27,7 +26,10 @@ def callCustomBot(game_info):
     for i in victory_cell:
         c = cell.getColumnId(i[0])
         r = cell.getRowId(i[1])
-        board_scores[r][c] += 30
+        if board_scores[r][c] <= 0:
+            board_scores[r][c] += 20
+        else:
+            board_scores[r][c] += 75
 
     return CustomBot(cell, you, board_scores)
 
