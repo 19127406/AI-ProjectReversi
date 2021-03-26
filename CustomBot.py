@@ -159,17 +159,18 @@ def compute_heuristic_score(victory_cell, cell, you):
     p1_score = 0
     p2_score = 0
     my_victory_cell = 0
+    opp_victory_cell = 0
     my_corner = 0
     new_board = Board()
     board_scores = [
-            [120, -20, 20, 5, 5, 20, -20, 120],
-            [-20, -40, -5, -5, -5, -5, -40, -20],
-            [20, -5, 15, 3, 3, 15, -5, 20],
-            [5, -5, 3, 3, 3, 3, -5, 5],
-            [5, -5, 3, 3, 3, 3, -5, 5],
-            [20, -5, 15, 3, 3, 15, -5, 20],
-            [-20, -40, -5, -5, -5, -5, -40, -20],
-            [120, -20, 20, 5, 5, 20, -20, 120]
+            [120, -20,  20,   5,   5,  20, -20, 120],
+            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+            [  5,  -5,   3,   3,   3,   3,  -5,   5],
+            [  5,  -5,   3,   3,   3,   3,  -5,   5],
+            [ 20,  -5,  15,   3,   3,  15,  -5,  20],
+            [-20, -40,  -5,  -5,  -5,  -5, -40, -20],
+            [120, -20,  20,   5,   5,  20, -20, 120]
         ]
 
     for i in [0, 7]:
@@ -182,8 +183,10 @@ def compute_heuristic_score(victory_cell, cell, you):
         r = new_board.getRowId(i[1])
         if cell[r][c] == you:
             my_victory_cell += 1
+        elif cell[r][c] != 'E':
+            opp_victory_cell += 1
 
-    if (my_victory_cell == 0 or my_victory_cell == 4) and my_corner >= 2:
+    if opp_victory_cell >= 3 or (my_victory_cell == 0 and my_corner > 0) or (my_victory_cell == 4 and my_corner >= 2):
         for i in victory_cell:
             c = new_board.getColumnId(i[0])
             r = new_board.getRowId(i[1])
