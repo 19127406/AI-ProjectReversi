@@ -13,29 +13,10 @@ def callCustomBot(game_info):
 
     you = lines[12]
 
-    board_scores = [
-        [90, -60, 10, 10, 10, 10, -60, 90],
-        [-60, -80, 5, 5, 5, 5, -80, -60],
-        [10, 5, 1, 1, 1, 1, 5, 10],
-        [10, 5, 1, 1, 1, 1, 5, 10],
-        [10, 5, 1, 1, 1, 1, 5, 10],
-        [10, 5, 1, 1, 1, 1, 5, 10],
-        [-60, -80, 5, 5, 5, 5, -80, -60],
-        [90, -60, 10, 10, 10, 10, -60, 90]
-    ]
-
-    for i in victory_cell:
-        c = cell.getColumnId(i[0])
-        r = cell.getRowId(i[1])
-        if board_scores[r][c] <= 0:
-            board_scores[r][c] += 20
-        else:
-            board_scores[r][c] += 75
-
-    return CustomBot(victory_cell, cell, you, board_scores)
+    return CustomBot(victory_cell, cell, you)
 
 
-def CustomBot(victory_cell, cell, you, board_scores):
+def CustomBot(victory_cell, cell, you):
     color = 'B' if you == "BLACK" else 'W'
 
     possible_positions = []
@@ -44,17 +25,17 @@ def CustomBot(victory_cell, cell, you, board_scores):
             possible_positions.append(c + r)
 
     if len(possible_positions) > 0:
-       return minimax(victory_cell, cell, color, board_scores)
+       return minimax(victory_cell, cell, color)
 
     else:
         return "NULL"
 
 
-def minimax(victory_cell, cell, you, board_scores):
-    return minimax_max(victory_cell, cell, you, board_scores, 1)
+def minimax(victory_cell, cell, you):
+    return minimax_max(victory_cell, cell, you, 1)
 
 
-def minimax_max(victory_cell, cell, you, board_scores, depth):
+def minimax_max(victory_cell, cell, you, depth):
     possible_positions = []
     if type(cell) is tuple:
         new_board = Board()
@@ -80,22 +61,22 @@ def minimax_max(victory_cell, cell, you, board_scores, depth):
     if len(possible_positions) > 0:
         if depth == 1:
             for move, state in move_states.items():
-                if best_move == None or minimax_min(victory_cell, state, you, board_scores, depth + 1) > best_value:
+                if best_move == None or minimax_min(victory_cell, state, you, depth + 1) > best_value:
                     best_move = move
-                    best_value = minimax_min(victory_cell, state, you, board_scores, depth + 1)
+                    best_value = minimax_min(victory_cell, state, you, depth + 1)
 
             return best_move
 
         else:
             for move, state in move_states.items():
-                if best_move == None or minimax_min(victory_cell, state, you, board_scores, depth + 1) > best_value:
-                    best_value = minimax_min(victory_cell, state, you, board_scores, depth + 1)
+                if best_move == None or minimax_min(victory_cell, state, you, depth + 1) > best_value:
+                    best_value = minimax_min(victory_cell, state, you, depth + 1)
             return best_value
 
-    return compute_heuristic_score(victory_cell, cell, you, board_scores)
+    return compute_heuristic_score(victory_cell, cell, you)
 
 
-def minimax_min(victory_cell, cell, you, board_scores, depth):
+def minimax_min(victory_cell, cell, you, depth):
     opponent = 'W' if you == 'B' else 'B'
     possible_positions = []
 
@@ -117,24 +98,23 @@ def minimax_min(victory_cell, cell, you, board_scores, depth):
         if depth <= 3:
             for move, state in move_states.items():
 
-                if best_move == None or minimax_max(victory_cell, state, you, board_scores, depth + 1) < best_value:
+                if best_move == None or minimax_max(victory_cell, state, you, depth + 1) < best_value:
                     best_move = move
-                    best_value = minimax_max(victory_cell, state, you, board_scores, depth + 1)
+                    best_value = minimax_max(victory_cell, state, you, depth + 1)
 
             return best_value
 
         else:
             for move, state in move_states.items():
 
-                if best_value == None or compute_heuristic_score(victory_cell, state, you, board_scores) < best_value:
-                    best_value = compute_heuristic_score(victory_cell, state, you, board_scores)
+                if best_value == None or compute_heuristic_score(victory_cell, state, you) < best_value:
+                    best_value = compute_heuristic_score(victory_cell, state, you)
 
             return best_value
-    return compute_heuristic_score(victory_cell, cell, you, board_scores)
+    return compute_heuristic_score(victory_cell, cell, you)
 
 
-def play_move(cell, you, i, j):          # column i, row j
-    """
+def play_move(cell, you, i, j):         #column i, row j
     new_board = []
     for row in list(cell.data):
         new_board.append(list(row[:]))
@@ -148,27 +128,39 @@ def play_move(cell, you, i, j):          # column i, row j
     for row in new_board:
         final.append(tuple(row))
     return tuple(final)
-    """
-    new_board = Board()
-    changing_cells = new_board.(position, color) + [(row_id, column_id)]
-    for (r, c) in changing_cells:
-        self.data[r, c] = color
 
 
-def compute_heuristic_score(victory_cell, cell, you, board_scores):
+def find_lines(board, i, j, you):          #column i, row j
+    lines = []
+    for xdir, ydir in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
+        u = i
+        v = j
+        line = []
+
+        u += xdir
+        v += ydir
+        found = False
+        while u >= 0 and u < len(board.data) and v >= 0 and v < len(board.data):
+            if board.data[v][u] == 'E':
+                break
+            elif board.data[v][u] == you:
+                found = True
+                break
+            else:
+                line.append((u, v))
+            u += xdir
+            v += ydir
+        if found and line:
+            lines.append(line)
+    return lines
+
+
+def compute_heuristic_score(victory_cell, cell, you):
     p1_score = 0
     p2_score = 0
     my_victory_cell = 0
     new_board = Board()
-
-    for i in victory_cell:
-        c = new_board.getColumnId(i[0])
-        r = new_board.getRowId(i[1])
-        if (type(cell) is tuple and cell[r][c] == you) or (type(cell) is Board and cell.data[r][c] == you):
-            my_victory_cell += 1
-
-    if my_victory_cell >= 3:
-        board_scores = [
+    board_scores = [
             [90, -60, 10, 10, 10, 10, -60, 90],
             [-60, -80, 5, 5, 5, 5, -80, -60],
             [10, 5, 1, 1, 1, 1, 5, 10],
@@ -179,12 +171,26 @@ def compute_heuristic_score(victory_cell, cell, you, board_scores):
             [90, -60, 10, 10, 10, 10, -60, 90]
         ]
 
+    for i in victory_cell:
+        c = new_board.getColumnId(i[0])
+        r = new_board.getRowId(i[1])
+        if cell[r][c] == you:
+            my_victory_cell += 1
+
+    if my_victory_cell <= 2 or my_victory_cell == 4:
+        for i in victory_cell:
+            c = new_board.getColumnId(i[0])
+            r = new_board.getRowId(i[1])
+            if board_scores[r][c] <= 0:
+                board_scores[r][c] += 20
+            else:
+                board_scores[r][c] += 70
+
     for r in range(8):
         for c in range(8):
-            if (type(cell) is tuple and cell[r][c] == you) or (type(cell) is Board and cell.data[r][c] == you):
+            if cell[r][c] == you:
                 p1_score += board_scores[r][c]
-
-            elif (type(cell) is tuple and cell[r][c] != 'E') or (type(cell) is Board and cell.data[r][c] != 'E'):
+            elif cell[r][c] != 'E':
                 p2_score += board_scores[r][c]
     return p1_score - p2_score
 
