@@ -10,9 +10,10 @@ class GameServerHandler(socketserver.BaseRequestHandler):
 
         isPlayFirst = random.choice([True, False])
         if isPlayFirst:
-            gameInstance.setNextTurn(callBot(gameInstance.getInfo()))
+            gameInstance.setNextTurn(callCustomBot(gameInstance.getInfo()))
 
         while not gameInstance.checkGameOver():
+            #print(gameInstance.getInfo())
             self.request.sendall(bytes(gameInstance.getInfo(), "ASCII"))
 
             try:
@@ -28,8 +29,9 @@ class GameServerHandler(socketserver.BaseRequestHandler):
                 return
 
             if not gameInstance.checkGameOver():
-                gameInstance.setNextTurn(callBot(gameInstance.getInfo()))
+                gameInstance.setNextTurn(callCustomBot(gameInstance.getInfo()))
 
+        #print(gameInstance.getFinalResult())
         self.request.sendall(bytes(gameInstance.getFinalResult(), "ASCII"))
 
 if __name__ == "__main__":

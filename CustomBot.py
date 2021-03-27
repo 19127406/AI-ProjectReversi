@@ -158,6 +158,9 @@ def find_lines(board, i, j, you):          #column i, row j
 def compute_heuristic_score(victory_cell, cell, you):
     p1_score = 0
     p2_score = 0
+    p1_cell = 0
+    p2_cell = 0
+    empty_cell = 0
     my_victory_cell = 0
     opp_victory_cell = 0
     my_corner = 0
@@ -186,7 +189,7 @@ def compute_heuristic_score(victory_cell, cell, you):
         elif cell[r][c] != 'E':
             opp_victory_cell += 1
 
-    if opp_victory_cell >= 3 or (my_victory_cell == 0 and my_corner > 0) or (my_victory_cell == 4 and my_corner >= 2):
+    if (opp_victory_cell >= 2 and my_victory_cell == 0) or (my_victory_cell == 0 and my_corner > 0) or (my_victory_cell == 4 and my_corner >= 2):
         for i in victory_cell:
             c = new_board.getColumnId(i[0])
             r = new_board.getRowId(i[1])
@@ -198,9 +201,16 @@ def compute_heuristic_score(victory_cell, cell, you):
     for r in range(8):
         for c in range(8):
             if cell[r][c] == you:
+                p1_cell += 1
                 p1_score += board_scores[r][c]
             elif cell[r][c] != 'E':
+                p2_cell += 1
                 p2_score += board_scores[r][c]
-    return p1_score - p2_score
+            else:
+                empty_cell += 1
+    if empty_cell > 0:
+        return p1_score - p2_score
+    else:
+        return p1_cell - p2_cell
 
 
