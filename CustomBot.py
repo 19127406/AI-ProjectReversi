@@ -113,47 +113,6 @@ def minimax_min(victory_cell, cell, you, depth):
             return best_value
     return compute_heuristic_score(victory_cell, cell, you)
 
-"""
-def play_move(cell, you, i, j):         #column i, row j
-    new_board = []
-    for row in list(cell.data):
-        new_board.append(list(row[:]))
-
-    lines = find_lines(cell, i, j, you)
-    new_board[j][i] = you
-    for line in lines:
-        for u, v in line:
-           new_board[v][u] = you
-    final = []
-    for row in new_board:
-        final.append(tuple(row))
-    return tuple(final)
-
-
-def find_lines(board, i, j, you):          #column i, row j
-    lines = []
-    for xdir, ydir in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
-        u = i
-        v = j
-        line = []
-
-        u += xdir
-        v += ydir
-        found = False
-        while u >= 0 and u < len(board.data) and v >= 0 and v < len(board.data):
-            if board.data[v][u] == 'E':
-                break
-            elif board.data[v][u] == you:
-                found = True
-                break
-            else:
-                line.append((u, v))
-            u += xdir
-            v += ydir
-        if found and line:
-            lines.append(line)
-    return lines
-"""
 
 def play_move(cell, you, i, j):         #column i, row j
     new_board = deepcopy(cell)
